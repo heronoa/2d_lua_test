@@ -23,9 +23,9 @@ function TestScene:enter()
     }
 
     self.tile_textures = {
-        -- [1] = "grass1",
-        -- [2] = "water1",
-        -- [3] = "rock1"
+        [1] = "grass1",
+        [2] = "water1",
+        [3] = "rock1"
     }
 
     self:buildMapCollision()
@@ -58,21 +58,27 @@ function TestScene:draw()
         for x = 1, #self.map[y] do
             local tile = self.map[y][x]
             if tile ~= 0 then
-                love.graphics.setColor(self.tile_colors[tile])
                 if self.tile_textures[tile] then
+                    love.graphics.setColor(1, 1, 1)
                     love.graphics.draw(
+                        Config:getTexture("tiles"),
                         Config:getTexture(self.tile_textures[tile]),
-                        (x - 1) * tile_size,
-                        (y - 1) * tile_size
+                        (x ) * tile_size,
+                        (y) * tile_size,
+                        0,
+                        tile_size / 16,
+                        tile_size / 16
+                    )
+                else
+                    love.graphics.setColor(self.tile_colors[tile])
+                    love.graphics.rectangle(
+                        'fill',
+                        (x) * tile_size,
+                        (y) * tile_size,
+                        tile_size,
+                        tile_size
                     )
                 end
-                love.graphics.rectangle(
-                    'fill',
-                    (x) * tile_size,
-                    (y) * tile_size,
-                    tile_size,
-                    tile_size
-                )
             end
         end
     end

@@ -100,14 +100,30 @@ function Player:getScreenPosition()
 end
 
 function Player:draw()
-    love.graphics.setColor(0.8, 0.2, 0.2)
-    love.graphics.rectangle(
-        'fill',
-        self.position.x - self.size.width / 2,
-        self.position.y - self.size.height,
-        self.size.width,
-        self.size.height
-    )
+    if Config:getTexture("player") and Config:getTexture("player_idle") then
+        love.graphics.draw(
+            Config:getTexture('player'),
+            Config:getTexture('player_idle'),
+            self.position.x - self.size.width / 2,
+            self.position.y - self.size.height,
+            0,
+            self.size.width / 24,
+            self.size.height / 24,
+            1,
+            1
+        )
+    else
+        love.graphics.setColor(0.8, 0.2, 0.2)
+        love.graphics.rectangle(
+            'fill',
+            self.position.x - self.size.width / 2,
+            self.position.y - self.size.height,
+            self.size.width,
+            self.size.height
+        )
+    end
+
+
 
     self:drawFacingIndicator((self.position.x or 0), ((self.position.y - self.size.height / 2) or 0))
 
