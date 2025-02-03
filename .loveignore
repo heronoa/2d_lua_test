@@ -1,0 +1,48 @@
+# .loveignore padrão para um projeto escalável
+# -------------------------------------------------
+
+# Desenvolvimento
+/.vscode/
+/.idea/
+/Thumbs.db
+*.psd
+*.ai
+*.xcf  # Arquivos brutos de design
+
+# Versionamento
+/.git/
+/.github/
+/.svn/
+
+# Builds e distribuição
+/build/
+/dist/
+*.love  # Se você já tem builds antigos
+
+# Documentação
+/docs/
+/design-docs/
+/README-DEV.md  # Mantenha apenas README.md se for para jogadores
+
+# Testes
+/tests/
+/test-levels/
+
+# Dependências de desenvolvimento
+/lib/hump/docs/
+/lib/*.md  # Documentação de bibliotecas
+
+# Assets não otimizados
+/assets/raw/
+/assets/source/
+/assets/**/*.wav  # Se você usa versões .ogg
+
+# Configurações locais
+/config-dev.lua
+.env
+*.env
+
+# Outros
+*.bak
+*.tmp
+*.swp  # Arquivos temporários de editores
