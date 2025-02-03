@@ -2,7 +2,6 @@ local GameState = require('src.core.game_state')
 local Config = require('src.core.config')
 
 function love.load()
-
     love.window.setMode(
         virtual_width or 1200, virtual_height or 720,
         {
@@ -42,6 +41,9 @@ local function drawDebugOverlay()
     love.graphics.setColor(1, 1, 1)
     love.graphics.print('FPS: ' .. love.timer.getFPS(), 10, 10)
     love.graphics.print('Current State: ' .. GameState:currentName(), 10, 30)
+    love.graphics.print('Mouse Position' .. tostring(love.mouse.getX()) .. ', ' .. tostring(love.mouse.getY()), 10, 90)
+    love.graphics.print('Debug Mode: ' .. tostring(Config.debug_mode), 10, 70)
+
 
     local currentState = GameState:current()
     if currentState and currentState.player and currentState.player.position then
@@ -63,11 +65,12 @@ function love.draw()
 
     GameState:draw()
 
-    love.graphics.pop()
 
     if Config.debug_mode then
         drawDebugOverlay()
     end
+
+    love.graphics.pop()
 end
 
 function love.mousepressed(x, y, button)

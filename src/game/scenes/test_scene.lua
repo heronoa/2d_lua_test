@@ -23,9 +23,9 @@ function TestScene:enter()
     }
 
     self.tile_textures = {
-        -- [1] = love.graphics.newImage('assets/graphics/summer_tiles.png'),
-        -- [2] = love.graphics.newImage('assets/graphics/summer_tiles.png'),
-        -- [3] = love.graphics.newImage('assets/graphics/summer_tiles.png')
+        -- [1] = "grass1",
+        -- [2] = "water1",
+        -- [3] = "rock1"
     }
 
     self:buildMapCollision()
@@ -61,7 +61,7 @@ function TestScene:draw()
                 love.graphics.setColor(self.tile_colors[tile])
                 if self.tile_textures[tile] then
                     love.graphics.draw(
-                        self.tile_textures[tile],
+                        Config:getTexture(self.tile_textures[tile]),
                         (x - 1) * tile_size,
                         (y - 1) * tile_size
                     )
@@ -102,7 +102,7 @@ function TestScene:buildMapCollision()
                     h = tile_size
                 }
 
-                print("Adicionando colisor:", collider.x, collider.y, collider.w, collider.h)
+                -- print("Adicionando colisor:", collider.x, collider.y, collider.w, collider.h)
 
                 -- Adiciona ao mundo físico
                 Physics:addEntity(collider, "map_tile", collider.x, collider.y, collider.w, collider.h)

@@ -44,6 +44,8 @@ function Player:update(dt)
     if love.keyboard.isDown('a') then move_x = -1 end
     if love.keyboard.isDown('d') then move_x = 1 end
 
+
+
     local move_vector = utils.normalize(move_x, move_y)
 
     self.velocity.x = self.velocity.x + move_vector.x * self.acceleration * dt
@@ -66,8 +68,16 @@ function Player:update(dt)
     local target_x = self.position.x + self.velocity.x * dt
     local target_y = self.position.y + self.velocity.y * dt
 
-    if move_x ~= 0 or move_y ~= 0 then
-        self.facing.angle = math.atan2(self.velocity.y, self.velocity.x)
+    -- if move_x ~= 0 or move_y ~= 0 then
+    -- For gamepad support'
+    --     self.facing.angle = math.atan2(self.velocity.y, self.velocity.x)
+    -- end
+
+    if love.mousepressed then
+        local mouse_x, mouse_y = love.mouse.getPosition()
+        local player_x, player_y = Config:get("virtual_width") / 2, Config:get("virtual_height") / 2
+        local angle = math.atan2(mouse_y - player_y, mouse_x - player_x)
+        self.facing.angle = angle
     end
 
     local actual_x, actual_y, cols, len = Physics:move(self, target_x, target_y)
@@ -129,11 +139,6 @@ function Player:drawFacingIndicator(x, y)
     if Config.debug_mode then
         love.graphics.setColor(1, 1, 1)
         love.graphics.print(string.format('Facing: %.2f', self.facing.angle), x, y)
-        print('Facing: ', self.facing.angle)
-        print('Facing X: ', math.cos(self.facing.angle))
-        print('Facing Y: ', math.sin(self.facing.angle))
-        print('Indicator X: ', indicator_x)
-        print('Indicator Y: ', indicator_y)
     end
 
     love.graphics.setColor(1, 0, 0)
