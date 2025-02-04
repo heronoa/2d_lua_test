@@ -9,6 +9,16 @@ function Player.new(inital_x, initial_y)
     local self = setmetatable({}, Player)
 
     self.position = { x = inital_x or 640, y = initial_y or 360 }
+    self.situations = {
+        idle = 'idle',
+        idle_n = 'idle_n',
+        idle_s = 'idle_s',
+        idle_w = 'idle_w',
+        idle_e = 'idle_e',
+        walking = 'walking',
+        attacking = 'attacking'
+    }
+    self.situation = "idle"
     self.velocity = { x = 0, y = 0 }
     self.speed = 400
     self.acceleration = 1800
@@ -36,13 +46,29 @@ function Player.new(inital_x, initial_y)
     return self
 end
 
+function Player:changeSituation(situation)
+    self.situation = situation
+end
+
 function Player:update(dt)
     local move_x, move_y = 0, 0
 
-    if love.keyboard.isDown('w') then move_y = -1 end
-    if love.keyboard.isDown('s') then move_y = 1 end
-    if love.keyboard.isDown('a') then move_x = -1 end
-    if love.keyboard.isDown('d') then move_x = 1 end
+    if love.keyboard.isDown('w') then
+        move_y = -1
+        Player:changeSituation("idle_n")
+    end
+    if love.keyboard.isDown('s') then
+        move_y = 1
+        Player:changeSituation("idle_s")
+    end
+    if love.keyboard.isDown('a') then
+        move_x = -1
+        Player:changeSituation("idle_w")
+    end
+    if love.keyboard.isDown('d') then
+        move_x = 1
+        Player:changeSituation("idle_e")
+    end
 
 
 
@@ -78,6 +104,18 @@ function Player:update(dt)
         local player_x, player_y = Config:get("virtual_width") / 2, Config:get("virtual_height") / 2
         local angle = math.atan2(mouse_y - player_y, mouse_x - player_x)
         self.facing.angle = angle
+
+        local angleRange = math.pi / 4
+
+        if angle < angleRange and angle > -angleRange then
+            Player:changeSituation("idle_e")
+        elseif angle < -angleRange and angle > -math.pi + angleRange then
+            Player:changeSituation("idle_n")
+        elseif angle < -math.pi + angleRange or angle > math.pi - angleRange then
+            Player:changeSituation("idle_w")
+        else
+            Player:changeSituation("idle_s")
+        end
     end
 
     local actual_x, actual_y, cols, len = Physics:move(self, target_x, target_y)
@@ -103,9 +141,9 @@ function Player:draw()
     if Config:getTexture("player") and Config:getTexture("player_idle") then
         love.graphics.draw(
             Config:getTexture('player'),
-            Config:getTexture('player_idle'),
-            self.position.x - self.size.width / 2,
-            self.position.y - self.size.height,
+            Config:getTexture('player_' .. (Player.situation or "idle")),
+            self.position.x - 30,
+            self.position.y - 90,
             0,
             self.size.width / 24,
             self.size.height / 24,
