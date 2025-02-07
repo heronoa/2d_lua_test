@@ -1,5 +1,7 @@
 local TestScene = {}
 local Player = require('src.game.entities.player')
+local Dummy = require('src.game.entities.npcs.dummy')
+
 local Config = require('src.core.config')
 local Physics = require('src.game.world.physics')
 local utils = require('src.core.utils')
@@ -7,6 +9,7 @@ local MapLoader = require('src.game.world.map_loader')
 
 function TestScene:enter()
     self.player = Player.new(250, 250)
+    self.dummy = Dummy.new(300, 300)
 
     self.camera = {
         x = 0,
@@ -37,6 +40,7 @@ end
 
 function TestScene:update(dt)
     self.player:update(dt)
+    -- self.dummy:update(dt)
 
 
     self.camera.x = utils.lerp(self.camera.x, self.player.position.x, self.camera.smoothness)
@@ -63,7 +67,7 @@ function TestScene:draw()
                     love.graphics.draw(
                         Config:getTexture("tiles"),
                         Config:getTexture(self.tile_textures[tile]),
-                        (x ) * tile_size,
+                        (x) * tile_size,
                         (y) * tile_size,
                         0,
                         tile_size / 16,
@@ -83,6 +87,11 @@ function TestScene:draw()
         end
     end
 
+    self.dummy:draw()
+
+
+
+    
     self.player:draw()
 
     love.graphics.pop()

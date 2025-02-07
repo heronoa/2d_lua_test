@@ -1,12 +1,14 @@
-local Player = {}
-Player.__index = Player
+local Dummy = {}
+Dummy.__index = Dummy
 
 local utils = require('src.core.utils')
 local Config = require('src.core.config')
 local Physics = require('src.game.world.physics')
 
-function Player.new(inital_x, initial_y)
-    local self = setmetatable({}, Player)
+function Dummy.new(inital_x, initial_y)
+    local self = setmetatable({}, Dummy)
+
+    print("Dummy created", self)
 
     self.position = { x = inital_x or 640, y = initial_y or 360 }
     self.situations = {
@@ -25,6 +27,7 @@ function Player.new(inital_x, initial_y)
     self.acceleration = 1800
     self.friction = 1600
     self.size = { width = 40, height = 60 }
+    self.canMove = false -- Add this flag to control movement
 
     self.facing = {
         angle = math.pi / 2,
@@ -41,29 +44,30 @@ function Player.new(inital_x, initial_y)
         Physics:initialize()
     end
 
-    Physics:addEntity(self, 'player', self.position.x, self.position.y, self.size.width, self.size.height)
-
+    Physics:addEntity(self, 'dummy', self.position.x, self.position.y, self.size.width, self.size.height)
 
     return self
 end
 
-function Player:update(dt)
+function Dummy:update(dt)
+    if not self.canMove then
+        return
+    end
+
     local move_x, move_y = 0, 0
 
-    if love.keyboard.isDown('w') then
-        move_y = -1
-    end
-    if love.keyboard.isDown('s') then
-        move_y = 1
-    end
-    if love.keyboard.isDown('a') then
-        move_x = -1
-    end
-    if love.keyboard.isDown('d') then
-        move_x = 1
-    end
-
-
+    -- if love.keyboard.isDown('w') then
+    --     move_y = -1
+    -- end
+    -- if love.keyboard.isDown('s') then
+    --     move_y = 1
+    -- end
+    -- if love.keyboard.isDown('a') then
+    --     move_x = -1
+    -- end
+    -- if love.keyboard.isDown('d') then
+    --     move_x = 1
+    -- end
 
     local move_vector = utils.normalize(move_x, move_y)
 
@@ -87,29 +91,24 @@ function Player:update(dt)
     local target_x = self.position.x + self.velocity.x * dt
     local target_y = self.position.y + self.velocity.y * dt
 
-    -- if move_x ~= 0 or move_y ~= 0 then
-    -- For gamepad support'
-    --     self.facing.angle = math.atan2(self.velocity.y, self.velocity.x)
+    -- if love.mousepressed then
+    --     local mouse_x, mouse_y = love.mouse.getPosition()
+    --     local dummy_x, dummy_y = Config:get("virtual_width") / 2, Config:get("virtual_height") / 2
+    --     local angle = math.atan2(mouse_y - dummy_y, mouse_x - dummy_x)
+    --     self.facing.angle = angle
+
+    --     local angleRange = math.pi / 4
+
+    --     if angle < angleRange and angle > -angleRange then
+    --         self:changeDirection("e")
+    --     elseif angle < -angleRange and angle > -math.pi + angleRange then
+    --         self:changeDirection("n")
+    --     elseif angle < -math.pi + angleRange or angle > math.pi - angleRange then
+    --         self:changeDirection("w")
+    --     else
+    --         self:changeDirection("s")
+    --     end
     -- end
-
-    if love.mousepressed then
-        local mouse_x, mouse_y = love.mouse.getPosition()
-        local player_x, player_y = Config:get("virtual_width") / 2, Config:get("virtual_height") / 2
-        local angle = math.atan2(mouse_y - player_y, mouse_x - player_x)
-        self.facing.angle = angle
-
-        local angleRange = math.pi / 4
-
-        if angle < angleRange and angle > -angleRange then
-            self:changeDirection("e")
-        elseif angle < -angleRange and angle > -math.pi + angleRange then
-            self:changeDirection("n")
-        elseif angle < -math.pi + angleRange or angle > math.pi - angleRange then
-            self:changeDirection("w")
-        else
-            self:changeDirection("s")
-        end
-    end
 
     local actual_x, actual_y, cols, len = Physics:move(self, target_x, target_y)
     self.position.x = actual_x
@@ -129,34 +128,39 @@ function Player:update(dt)
     end
 end
 
-function Player:getScreenPosition()
+function Dummy:getScreenPosition()
     return self.position.x - Config:get('tile_size') / 2, self.position.y - Config:get('tile_size') / 2
 end
 
-function Player:draw()
-    if Config:getTexture("player") and Config:getTexture("player_idle") then
+function Dummy:draw()
+    print("dummy positions", self.position.x, self.position.y)
+    if Config:getTexture("dummy") and Config:getTexture("dummy_idle") then
         if (self.situation == "walking") then
+            print("drawing: " .. 'dummy_' ..
+                self.situation .. '_' .. self.direction .. '_' .. self.animation.walk_cycle[self.animation.frame])
+
             love.graphics.draw(
-                Config:getTexture('player'),
-                Config:getTexture('player_' ..
+                Config:getTexture('dummy'),
+                Config:getTexture('dummy_' ..
                     self.situation .. '_' .. self.direction .. '_' .. self.animation.walk_cycle[self.animation.frame]),
                 self.position.x - 30,
                 self.position.y - 90,
                 0,
-                self.size.width / 24,
-                self.size.height / 24,
+                self.size.width / 12,
+                self.size.height / 12,
                 1,
                 1
             )
         else
+            print("drawing: " .. 'dummy_' .. self.situation .. "_" .. self.direction)
             love.graphics.draw(
-                Config:getTexture('player'),
-                Config:getTexture('player_' .. self.situation .. "_" .. self.direction),
+                Config:getTexture('dummy'),
+                Config:getTexture('dummy_' .. self.situation .. "_" .. self.direction),
                 self.position.x - 30,
                 self.position.y - 90,
                 0,
-                self.size.width / 24,
-                self.size.height / 24,
+                self.size.width / 12,
+                self.size.height / 12,
                 1,
                 1
             )
@@ -173,12 +177,6 @@ function Player:draw()
     end
 
 
-
-    self:drawFacingIndicator((self.position.x or 0), ((self.position.y - self.size.height / 2) or 0))
-
-    if (self:getScreenPosition() ~= nil) then
-        love.graphics.translate(self:getScreenPosition())
-    end
 
 
     if Config.debug_mode then
@@ -197,7 +195,7 @@ function Player:draw()
     end
 end
 
-function Player:drawFacingIndicator(x, y)
+function Dummy:drawFacingIndicator(x, y)
     local indicator_x = x + math.cos(self.facing.angle) * self.facing.indicator_distance
     local indicator_y = y + math.sin(self.facing.angle) * self.facing.indicator_distance
 
@@ -221,12 +219,14 @@ function Player:drawFacingIndicator(x, y)
     )
 end
 
-function Player:changeDirection(direction)
+function Dummy:changeDirection(direction)
     self.direction = direction
+    print('Direction changed to: ' .. direction)
 end
 
-function Player:changeSituation(situation)
+function Dummy:changeSituation(situation)
     self.situation = situation
+    print('situation changed to: ' .. situation)
 end
 
-return Player
+return Dummy
